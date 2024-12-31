@@ -1,11 +1,16 @@
-FROM ruby:2.7-alpine
+FROM ruby:2.7-slim
 
-COPY Gemfile /Gemfile
-COPY Gemfile.lock /Gemfile.lock
-COPY jenkins /jenkins
+WORKDIR /app
 
-COPY jenkins_job.rb /jenkins_job.rb
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential \
+    && gem install bundler -v 2.2.17
+
+COPY Gemfile Gemfile.lock ./
 
 RUN bundle install
 
-ENTRYPOINT [ "ruby", "/jenkins_job.rb" ]
+COPY jenkins ./jenkins/
+COPY jenkins_job.rb ./
+
+ENTRYPOINT [ "ruby", "/app/jenkins_job.rb" ]
